@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delete Account &amp; Cloud Data — Study Clock (com.salman.studyclock)</title>
+  <link rel="canonical" href="https://salmanmallah.github.io/delete-account.html" />
+  <style>
+    :root { --bg: #000000; --card: #121215; --border: #232328; --text: #ffffff; --muted: #b4b4be; --accent: #34c759; --danger: #ff453a; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.7; padding: 36px 20px; }
+    .container { max-width: 820px; margin: 0 auto; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1 { font-size: 30px; margin-bottom: 8px; }
+    .meta { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 18px; }
+    h2 { font-size: 19px; margin-bottom: 10px; color: var(--text); }
+    p, li { color: var(--muted); font-size: 15px; margin-bottom: 10px; }
+    ol, ul { padding-left: 22px; }
+    label { display: block; font-size: 14px; font-weight: 600; margin-top: 12px; margin-bottom: 6px; color: var(--text); }
+    input, select, textarea {
+      width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
+      background: #0c0c0f; color: var(--text); font-size: 14px;
+    }
+    button.btn {
+      margin-top: 16px; padding: 12px 22px; border-radius: 12px; border: none;
+      background: var(--danger); color: #ffffff; font-weight: 700; font-size: 14px; cursor: pointer;
+    }
+    .status-box {
+      display: none; margin-top: 16px; padding: 14px; border-radius: 10px;
+      background: rgba(52, 199, 89, 0.14); border: 1px solid rgba(52, 199, 89, 0.35); color: var(--text); font-size: 14px;
+    }
+    code { background: #1e1e24; padding: 2px 6px; border-radius: 6px; color: #e4e4e7; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p style="margin-bottom:14px;"><a href="/">&larr; Back to Study Clock Home</a> &bull; <a href="/privacy-policy.html">Privacy Policy</a></p>
+    <h1>Account &amp; Cloud Data Deletion — Study Clock</h1>
+    <p class="meta">Application: <strong>Study Clock</strong> (<code>com.salman.studyclock</code>) &bull; Developer: Salman Mallah (<a href="mailto:developer.salmanmallah@gmail.com">developer.salmanmallah@gmail.com</a>)</p>
+
+    <div class="card">
+      <h2>Option 1: Instant In-App Account &amp; Data Deletion (Recommended)</h2>
+      <p>If you have Study Clock installed on your Android device, you can delete your account and cloud data immediately inside the app:</p>
+      <ol>
+        <li>Open <strong>Study Clock</strong> and go to <strong>Settings</strong>.</li>
+        <li>Tap your <strong>Account Card</strong> at the top to open the <strong>Profile</strong> screen.</li>
+        <li>Scroll to the bottom and tap <strong>Delete Account &amp; Data</strong>.</li>
+        <li>Tap <strong>Delete</strong> in the confirmation dialog (if prompted by Google for security verification, confirm your Google account).</li>
+      </ol>
+      <p>Your Cloud Firestore profile, synced study/work sessions, custom tags, Firebase Auth user record, and local device logs are deleted immediately and the app returns to Guest Mode.</p>
+    </div>
+
+    <div class="card">
+      <h2>Option 2: Submit a Web Account Deletion Request (No App Required)</h2>
+      <p>If you have uninstalled Study Clock or cannot access the app, submit a deletion request below or email <a href="mailto:developer.salmanmallah@gmail.com?subject=Study%20Clock%20Account%20Deletion%20Request">developer.salmanmallah@gmail.com</a> from the Google Account email associated with your Study Clock account. Web requests are processed within <strong>7 calendar days</strong>.</p>
+
+      <form id="deleteForm" onsubmit="handleDeleteRequest(event)">
+        <label for="email">Google Account Email Address (Required)</label>
+        <input type="email" id="email" required placeholder="your.email@gmail.com" />
+
+        <label for="scope">Deletion Scope</label>
+        <select id="scope">
+          <option value="Account + Profile + Study Sessions (Preserve Lifetime Premium entitlement if purchased)">Delete Account, Profile &amp; All Study Sessions (Retain Lifetime Premium receipt if purchased)</option>
+          <option value="Full Erasure (Delete Account, Profile, Study Sessions, AND permanently forfeit any Lifetime Premium entitlement)">Complete Erasure (Delete Account, Profile, Study Sessions &amp; forfeit Lifetime Premium entitlement)</option>
+        </select>
+
+        <label for="notes">Additional Verification Note (Optional)</label>
+        <textarea id="notes" rows="3" placeholder="Optional note or approximate last sign-in date"></textarea>
+
+        <button type="submit" class="btn">Submit Account Deletion Request</button>
+      </form>
+
+      <div id="statusBox" class="status-box"></div>
+    </div>
+
+    <div class="card">
+      <h2>What Data Is Deleted vs. Retained</h2>
+      <ul>
+        <li><strong>Permanently Deleted:</strong> Firebase Authentication account record (<code>UID</code>, email address, display name, photo URL), Cloud Firestore user profile document (<code>users/{uid}</code>), all synced study/work session records (<code>users/{uid}/study_sessions/*</code>), custom subject tags, and local SQLite session history.</li>
+        <li><strong>Retained for Purchase Restoration &amp; Fraud Prevention:</strong> If you purchased the one-time <strong>Lifetime Premium</strong> upgrade (<code>premium_lifetime</code>), the non-PII entitlement verification record (<code>users/{uid}/entitlements/premium</code> and SHA-256 purchase token hash <code>purchase_tokens/{tokenHash}</code>) is retained solely so Google Play Billing can restore your purchase if you reinstall the app and prevent duplicate token fraud. You may request complete erasure of this entitlement record by selecting <em>"Complete Erasure"</em> above or emailing <a href="mailto:developer.salmanmallah@gmail.com">developer.salmanmallah@gmail.com</a>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    function handleDeleteRequest(e) {
+      e.preventDefault();
+      var email = document.getElementById('email').value.trim();
+      var scope = document.getElementById('scope').value;
+      var notes = document.getElementById('notes').value.trim() || 'None';
+      var subject = encodeURIComponent('Study Clock Account Deletion Request - ' + email);
+      var body = encodeURIComponent(
+        'Please delete my Study Clock (com.salman.studyclock) account and cloud data.\n\n' +
+        'Google Account Email: ' + email + '\n' +
+        'Requested Scope: ' + scope + '\n' +
+        'Notes: ' + notes + '\n'
+      );
+      var box = document.getElementById('statusBox');
+      box.style.display = 'block';
+      box.innerHTML = 'Opening your email client to send the verified request to <strong>developer.salmanmallah@gmail.com</strong>. If your email app did not open automatically, click <a href="mailto:developer.salmanmallah@gmail.com?subject=' + subject + '&body=' + body + '"><strong>here to send the email</strong></a>. Your request will be completed within 7 calendar days.';
+      window.location.href = 'mailto:developer.salmanmallah@gmail.com?subject=' + subject + '&body=' + body;
+    }
+  </script>
+</body>
+</html>
