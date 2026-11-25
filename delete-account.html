@@ -62,7 +62,7 @@
 
     <div class="card">
       <h2>Option 2: Out-of-App Account Deletion Request (Via Email or Webmail)</h2>
-      <p>If you have uninstalled Study Clock or cannot access the app, you can request account and cloud data deletion without installing the app by sending an email from the <strong>Google Account email address</strong> linked to your Study Clock account to <a href="mailto:developer.salmanmallah@gmail.com?subject=Study%20Clock%20Account%20Deletion%20Request"><strong>developer.salmanmallah@gmail.com</strong></a>. Sending the request from your registered Google Account email verifies ownership so no third party can maliciously delete your account. All requests are completed within <strong>7 calendar days</strong>.</p>
+      <p>If you have uninstalled Study Clock or cannot access the app, you can request account and cloud data deletion without installing the app by emailing <a href="mailto:developer.salmanmallah@gmail.com?subject=Study%20Clock%20Account%20Deletion%20Request"><strong>developer.salmanmallah@gmail.com</strong></a> from the <strong>Google Account email address</strong> linked to your Study Clock account. To protect your account from unauthorized third-party deletion, we verify ownership by checking that the email originates from your registered Google Account address and, if additional confirmation is required, replying to that address for a one-time confirmation before completing deletion within <strong>7 calendar days</strong>.</p>
 
       <p>Use the generator below to open your email app or copy a pre-formatted deletion request for Gmail Web / any webmail client:</p>
 
@@ -134,10 +134,16 @@
     function copyRequestDetails() {
       var payload = buildRequestPayload();
       var fullText = 'To: developer.salmanmallah@gmail.com\nSubject: ' + payload.subject + '\n\n' + payload.body;
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(fullText);
+      var unverifiedMsg = 'Your deletion request text is displayed below. Please select and copy it from the box below (or click "Open Directly in Gmail Web") and send it from your registered Google Account email to developer.salmanmallah@gmail.com.';
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(fullText).then(function () {
+          renderFallbackBox(payload, 'Copied request text to clipboard! Paste and send it from your registered Google Account email to developer.salmanmallah@gmail.com (or click "Open Directly in Gmail Web").');
+        }).catch(function () {
+          renderFallbackBox(payload, unverifiedMsg);
+        });
+      } else {
+        renderFallbackBox(payload, unverifiedMsg);
       }
-      renderFallbackBox(payload, 'Copied request text to clipboard! Paste and send it from your registered Google Account email to developer.salmanmallah@gmail.com (or click "Open Directly in Gmail Web").');
     }
   </script>
 </body>
