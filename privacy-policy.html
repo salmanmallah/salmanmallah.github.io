@@ -29,7 +29,7 @@
 
     <div class="card">
       <h2>1. Overview &amp; Offline-First Design</h2>
-      <p>Study Clock (<code>com.salman.studyclock</code>) is built offline-first. You can use all core clock, flip clock, countdown timer, stopwatch, Pomodoro, and local study session tracking features in <strong>Guest Mode</strong> without creating an account or transmitting personal data to any server.</p>
+      <p>Study Clock (<code>com.salman.studyclock</code>) is built offline-first. You can use all core clock, flip clock, countdown timer, stopwatch, Pomodoro, and local study session tracking features in <strong>Guest Mode</strong> without creating an account or syncing your study logs to our servers. On the Free tier (including Guest Mode), non-intrusive Google AdMob ads may be served outside active focus sessions (subject to UMP consent where required), which involves standard ad-delivery and Advertising ID data collection by the Google Mobile Ads SDK as detailed in Section 5 below.</p>
     </div>
 
     <div class="card">
@@ -42,24 +42,23 @@
 
     <div class="card">
       <h2>3. Optional Google Sign-In &amp; Cloud Firestore Sync</h2>
-      <p>If you choose to sign in using <strong>Sign in with Google</strong> (via Android Credential Manager and Firebase Authentication), Study Clock processes and syncs the following data to your private account in <strong>Google Cloud Firestore</strong>:</p>
+      <p>If you choose to sign in using <strong>Sign in with Google</strong> (via Android Credential Manager and Firebase Authentication), Study Clock collects and syncs the following data to your private account in <strong>Google Cloud Firestore</strong>:</p>
       <ul>
         <li><strong>Account Identifiers &amp; Profile:</strong> Firebase User ID (<code>UID</code>), display name, email address, short bio, avatar preset or custom avatar thumbnail, and Google profile photo URL stored under <code>users/{uid}</code>.</li>
         <li><strong>Study Session Backup:</strong> Your study/work session records and custom subject tags stored under <code>users/{uid}/study_sessions/{sessionId}</code> so your progress stays backed up and synchronized across your devices.</li>
       </ul>
-      <p>We never sell or share your personal profile or study logs with third-party data brokers.</p>
+      <p>We never sell your personal profile or study logs to third-party data brokers.</p>
     </div>
 
     <div class="card">
       <h2>4. Google Play Billing &amp; Lifetime Premium Verification</h2>
-      <p>Study Clock offers an optional one-time in-app purchase (<code>premium_lifetime</code>) processed exclusively through <strong>Google Play Billing</strong>. We do not collect or store your credit card, debit card, or banking details. When you purchase or restore Lifetime Premium while signed in, our backend Firebase Cloud Function (<code>verifyPremiumPurchase</code>) verifies the purchase token with the Google Play Developer API and stores an authoritative entitlement record under <code>users/{uid}/entitlements/premium</code> and a SHA-256 hashed token record under <code>purchase_tokens/{tokenHash}</code> to prevent replay fraud and enable cross-device purchase restoration.</p>
+      <p>Study Clock offers an optional one-time in-app purchase (<code>premium_lifetime</code>) processed exclusively through <strong>Google Play Billing</strong>. We do not collect or store your payment card or banking details. When you purchase or restore Lifetime Premium while signed in, our backend Firebase Cloud Function (<code>verifyPremiumPurchase</code>) verifies the purchase token with the Google Play Developer API and stores an authoritative entitlement record under <code>users/{uid}/entitlements/premium</code> and a SHA-256 hashed token record under <code>purchase_tokens/{tokenHash}</code> to prevent replay fraud and enable cross-device purchase restoration.</p>
     </div>
 
     <div class="card">
       <h2>5. Advertising, Advertising ID &amp; UMP GDPR Consent (Free Tier Only)</h2>
       <ul>
-        <li><strong>Google AdMob:</strong> Free-tier users may see non-intrusive banner ads (in Settings, Profile, or Study dashboard) and frequency-capped transition interstitial ads (never shown during active study, timer, stopwatch, or Pomodoro sessions). Verified Lifetime Premium users never initialize the Google Mobile Ads SDK and see zero ads.</li>
-        <li><strong>Advertising ID (<code>com.google.android.gms.permission.AD_ID</code>):</strong> Used by the Google Mobile Ads SDK on Android 13+ for ad serving, frequency capping, analytics, and invalid-traffic/fraud prevention in accordance with your device settings and consent choices.</li>
+        <li><strong>Google AdMob &amp; SDK Data Collection:</strong> Free-tier users (both Guest Mode and signed-in Free users) may see non-intrusive banner ads (in Settings, Profile, or Study dashboard) and frequency-capped transition interstitial ads (never shown during active study, timer, stopwatch, or Pomodoro sessions). To serve and measure ads and prevent invalid traffic/fraud, the Google Mobile Ads SDK automatically collects and shares with Google: device <strong>Advertising ID</strong> (<code>com.google.android.gms.permission.AD_ID</code>), IP address (which may be used by Google to estimate coarse location), app interaction/ad impression events, and device diagnostic information (such as device model, OS version, screen dimensions, and ad performance diagnostics). Verified Lifetime Premium users never initialize the Google Mobile Ads SDK and see zero ads.</li>
         <li><strong>EU/EEA/UK User Consent (UMP SDK):</strong> For users in the European Economic Area, the United Kingdom, and Switzerland, Study Clock uses Google's User Messaging Platform (UMP) to request consent before initializing ads. Free-tier users can review, change, or revoke their ad personalization consent at any time via <strong>Settings &rarr; Support &amp; Legal &rarr; Privacy Options</strong>.</li>
       </ul>
     </div>
@@ -68,6 +67,7 @@
       <h2>6. Device Permissions Explained</h2>
       <ul>
         <li><code>INTERNET</code> &amp; <code>ACCESS_NETWORK_STATE</code>: Required for optional Cloud Firestore sync, Google Sign-In, Play Billing verification, and AdMob ad loading.</li>
+        <li><code>com.google.android.gms.permission.AD_ID</code>: Used by Google Mobile Ads SDK on Android 13+ for ad delivery, frequency capping, and invalid-traffic protection on the Free tier.</li>
         <li><code>POST_NOTIFICATIONS</code>: Used on Android 13+ to display active study session chronometer notifications and countdown timer completion alerts.</li>
         <li><code>FOREGROUND_SERVICE</code> &amp; <code>FOREGROUND_SERVICE_SPECIAL_USE</code>: Keeps your active study session chronometer notification running accurately when you minimize the app during a study session.</li>
         <li><code>USE_EXACT_ALARM</code> / <code>SCHEDULE_EXACT_ALARM</code>: Ensures countdown timers and Pomodoro alerts ring at the exact second they finish.</li>
@@ -76,12 +76,18 @@
     </div>
 
     <div class="card">
-      <h2>7. Data Retention &amp; Account / Data Deletion</h2>
-      <p>You can delete your Study Clock account and associated data at any time using either of two methods:</p>
+      <h2>7. Data Retention Schedule &amp; Account / Data Deletion</h2>
+      <p><strong>Retention Periods &amp; Criteria:</strong></p>
       <ul>
-        <li><strong>In-App Instant Deletion:</strong> Open <strong>Study Clock &rarr; Settings &rarr; Account Card (Profile) &rarr; Delete Account &amp; Data</strong>. This immediately deletes your synced study/work sessions (<code>users/{uid}/study_sessions/*</code>), deletes your Firestore profile document (<code>users/{uid}</code>), deletes your Firebase Authentication user record, wipes local device account logs, and signs you out to Guest Mode.</li>
-        <li><strong>Web Deletion Request (Without the App):</strong> Visit <a href="https://salmanmallah.github.io/delete-account.html">https://salmanmallah.github.io/delete-account.html</a> or email <a href="mailto:developer.salmanmallah@gmail.com">developer.salmanmallah@gmail.com</a>. Web deletion requests are processed within 7 calendar days.</li>
-        <li><strong>Retained Purchase Entitlement Record:</strong> If you purchased Lifetime Premium, the non-PII entitlement record (<code>users/{uid}/entitlements/premium</code> and hashed purchase token <code>purchase_tokens/{tokenHash}</code>) is retained solely for Google Play purchase restoration and fraud prevention. You may request complete erasure of this record by contacting <a href="mailto:developer.salmanmallah@gmail.com">developer.salmanmallah@gmail.com</a>.</li>
+        <li><strong>Local On-Device Data (SQLite &amp; SharedPreferences):</strong> Retained locally on your device only for as long as Study Clock remains installed, or until you clear app storage, uninstall the app, or trigger in-app account deletion.</li>
+        <li><strong>Synced Cloud Account, Profile &amp; Study Sessions (<code>users/{uid}</code> and <code>users/{uid}/study_sessions/*</code>):</strong> Retained in Google Cloud Firestore for as long as your Study Clock account remains active so you can sync and restore your study history across devices. We do not auto-expire active study logs, because users rely on multi-year career and semester study analytics; instead, these records are retained until you delete them in-app or submit a deletion request.</li>
+        <li><strong>Lifetime Premium Entitlement Ledger (<code>users/{uid}/entitlements/premium</code> and <code>purchase_tokens/{tokenHash}</code>):</strong> If you purchased Lifetime Premium, this non-PII purchase verification record is retained while the app is supported on Google Play solely to allow cross-device purchase restoration via Google Play Billing and prevent duplicate purchase-token replay fraud, unless you explicitly request complete erasure and forfeiture of your entitlement.</li>
+        <li><strong>Google AdMob Telemetry:</strong> Any ad-serving and Advertising ID signals collected by the Google Mobile Ads SDK on the Free tier are retained and governed by <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.</li>
+      </ul>
+      <p><strong>How to Delete Your Account &amp; Data:</strong></p>
+      <ul>
+        <li><strong>In-App Instant Deletion:</strong> Open <strong>Study Clock &rarr; Settings &rarr; Account Card (Profile) &rarr; Delete Account &amp; Data</strong>. After Google re-authentication, this immediately deletes your synced study/work sessions (<code>users/{uid}/study_sessions/*</code>), deletes your Firestore profile document (<code>users/{uid}</code>), wipes local device account logs, deletes your Firebase Authentication user record, and signs you out to Guest Mode.</li>
+        <li><strong>Out-of-App Web Deletion Request:</strong> Visit <a href="https://salmanmallah.github.io/delete-account.html">https://salmanmallah.github.io/delete-account.html</a> or email <a href="mailto:developer.salmanmallah@gmail.com">developer.salmanmallah@gmail.com</a> from your registered Google Account email address. Out-of-app deletion requests are fulfilled within <strong>7 calendar days</strong>.</li>
       </ul>
     </div>
 

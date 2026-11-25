@@ -23,13 +23,21 @@
       width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
       background: #0c0c0f; color: var(--text); font-size: 14px;
     }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
     button.btn {
-      margin-top: 16px; padding: 12px 22px; border-radius: 12px; border: none;
+      padding: 12px 20px; border-radius: 12px; border: none;
       background: var(--danger); color: #ffffff; font-weight: 700; font-size: 14px; cursor: pointer;
     }
+    button.btn.secondary {
+      background: #1e1e24; border: 1px solid var(--border); color: var(--text);
+    }
     .status-box {
-      display: none; margin-top: 16px; padding: 14px; border-radius: 10px;
-      background: rgba(52, 199, 89, 0.14); border: 1px solid rgba(52, 199, 89, 0.35); color: var(--text); font-size: 14px;
+      display: none; margin-top: 16px; padding: 16px; border-radius: 10px;
+      background: rgba(52, 199, 89, 0.12); border: 1px solid rgba(52, 199, 89, 0.35); color: var(--text); font-size: 14px;
+    }
+    pre.request-preview {
+      margin-top: 10px; padding: 12px; border-radius: 8px; background: #0c0c0f;
+      border: 1px solid var(--border); color: #e4e4e7; white-space: pre-wrap; font-size: 13px;
     }
     code { background: #1e1e24; padding: 2px 6px; border-radius: 6px; color: #e4e4e7; font-size: 13px; }
   </style>
@@ -47,17 +55,19 @@
         <li>Open <strong>Study Clock</strong> and go to <strong>Settings</strong>.</li>
         <li>Tap your <strong>Account Card</strong> at the top to open the <strong>Profile</strong> screen.</li>
         <li>Scroll to the bottom and tap <strong>Delete Account &amp; Data</strong>.</li>
-        <li>Tap <strong>Delete</strong> in the confirmation dialog (if prompted by Google for security verification, confirm your Google account).</li>
+        <li>Tap <strong>Delete</strong> in the confirmation dialog and confirm the Google account re-authentication prompt.</li>
       </ol>
-      <p>Your Cloud Firestore profile, synced study/work sessions, custom tags, Firebase Auth user record, and local device logs are deleted immediately and the app returns to Guest Mode.</p>
+      <p>Your Cloud Firestore profile (<code>users/{uid}</code>), synced study/work sessions (<code>users/{uid}/study_sessions/*</code>), custom tags, local device logs, and Firebase Authentication user account are deleted immediately and the app returns to Guest Mode.</p>
     </div>
 
     <div class="card">
-      <h2>Option 2: Submit a Web Account Deletion Request (No App Required)</h2>
-      <p>If you have uninstalled Study Clock or cannot access the app, submit a deletion request below or email <a href="mailto:developer.salmanmallah@gmail.com?subject=Study%20Clock%20Account%20Deletion%20Request">developer.salmanmallah@gmail.com</a> from the Google Account email associated with your Study Clock account. Web requests are processed within <strong>7 calendar days</strong>.</p>
+      <h2>Option 2: Out-of-App Account Deletion Request (Via Email or Webmail)</h2>
+      <p>If you have uninstalled Study Clock or cannot access the app, you can request account and cloud data deletion without installing the app by sending an email from the <strong>Google Account email address</strong> linked to your Study Clock account to <a href="mailto:developer.salmanmallah@gmail.com?subject=Study%20Clock%20Account%20Deletion%20Request"><strong>developer.salmanmallah@gmail.com</strong></a>. Sending the request from your registered Google Account email verifies ownership so no third party can maliciously delete your account. All requests are completed within <strong>7 calendar days</strong>.</p>
+
+      <p>Use the generator below to open your email app or copy a pre-formatted deletion request for Gmail Web / any webmail client:</p>
 
       <form id="deleteForm" onsubmit="handleDeleteRequest(event)">
-        <label for="email">Google Account Email Address (Required)</label>
+        <label for="email">Your Registered Google Account Email Address (Required)</label>
         <input type="email" id="email" required placeholder="your.email@gmail.com" />
 
         <label for="scope">Deletion Scope</label>
@@ -66,41 +76,68 @@
           <option value="Full Erasure (Delete Account, Profile, Study Sessions, AND permanently forfeit any Lifetime Premium entitlement)">Complete Erasure (Delete Account, Profile, Study Sessions &amp; forfeit Lifetime Premium entitlement)</option>
         </select>
 
-        <label for="notes">Additional Verification Note (Optional)</label>
-        <textarea id="notes" rows="3" placeholder="Optional note or approximate last sign-in date"></textarea>
+        <label for="notes">Additional Note (Optional)</label>
+        <textarea id="notes" rows="2" placeholder="Optional note"></textarea>
 
-        <button type="submit" class="btn">Submit Account Deletion Request</button>
+        <div class="btn-row">
+          <button type="submit" class="btn">Prepare &amp; Open Email Request</button>
+          <button type="button" class="btn secondary" onclick="copyRequestDetails()">Copy Request Text for Webmail</button>
+        </div>
       </form>
 
       <div id="statusBox" class="status-box"></div>
     </div>
 
     <div class="card">
-      <h2>What Data Is Deleted vs. Retained</h2>
+      <h2>What Data Is Deleted vs. Retained &amp; Retention Schedule</h2>
       <ul>
-        <li><strong>Permanently Deleted:</strong> Firebase Authentication account record (<code>UID</code>, email address, display name, photo URL), Cloud Firestore user profile document (<code>users/{uid}</code>), all synced study/work session records (<code>users/{uid}/study_sessions/*</code>), custom subject tags, and local SQLite session history.</li>
-        <li><strong>Retained for Purchase Restoration &amp; Fraud Prevention:</strong> If you purchased the one-time <strong>Lifetime Premium</strong> upgrade (<code>premium_lifetime</code>), the non-PII entitlement verification record (<code>users/{uid}/entitlements/premium</code> and SHA-256 purchase token hash <code>purchase_tokens/{tokenHash}</code>) is retained solely so Google Play Billing can restore your purchase if you reinstall the app and prevent duplicate token fraud. You may request complete erasure of this entitlement record by selecting <em>"Complete Erasure"</em> above or emailing <a href="mailto:developer.salmanmallah@gmail.com">developer.salmanmallah@gmail.com</a>.</li>
+        <li><strong>Permanently Deleted (Immediately In-App / Within 7 Calendar Days via Email Request):</strong> Firebase Authentication account record (<code>UID</code>, email address, display name, photo URL), Cloud Firestore user profile document (<code>users/{uid}</code>), all synced study/work session records (<code>users/{uid}/study_sessions/*</code>), custom subject tags, and local SQLite session history.</li>
+        <li><strong>Retained for Purchase Restoration &amp; Fraud Prevention:</strong> If you purchased the one-time <strong>Lifetime Premium</strong> upgrade (<code>premium_lifetime</code>), the non-PII entitlement verification record (<code>users/{uid}/entitlements/premium</code> and SHA-256 purchase token hash <code>purchase_tokens/{tokenHash}</code>) is retained while the app is supported on Google Play solely so Google Play Billing can restore your purchase if you reinstall the app and prevent duplicate token replay fraud. You may request complete erasure of this entitlement record by selecting <em>"Complete Erasure"</em> above or emailing <a href="mailto:developer.salmanmallah@gmail.com">developer.salmanmallah@gmail.com</a>.</li>
       </ul>
     </div>
   </div>
 
   <script>
+    function buildRequestPayload() {
+      var email = (document.getElementById('email').value || '').trim() || '<your-google-account-email>';
+      var scope = document.getElementById('scope').value;
+      var notes = (document.getElementById('notes').value || '').trim() || 'None';
+      var subject = 'Study Clock Account Deletion Request - ' + email;
+      var body =
+        'Please delete my Study Clock (com.salman.studyclock) account and cloud data.\n\n' +
+        'Registered Google Account Email: ' + email + '\n' +
+        'Requested Scope: ' + scope + '\n' +
+        'Notes: ' + notes;
+      return { email: email, subject: subject, body: body };
+    }
+
+    function renderFallbackBox(payload, prefixMsg) {
+      var box = document.getElementById('statusBox');
+      var mailtoHref = 'mailto:developer.salmanmallah@gmail.com?subject=' + encodeURIComponent(payload.subject) + '&body=' + encodeURIComponent(payload.body);
+      var gmailHref = 'https://mail.google.com/mail/?view=cm&fs=1&to=developer.salmanmallah@gmail.com&su=' + encodeURIComponent(payload.subject) + '&body=' + encodeURIComponent(payload.body);
+      box.style.display = 'block';
+      box.innerHTML =
+        '<p><strong>' + prefixMsg + '</strong></p>' +
+        '<p style="margin-top:8px;">Send from your registered Google Account email to: <code>developer.salmanmallah@gmail.com</code></p>' +
+        '<p style="margin-top:6px;"><a href="' + mailtoHref + '"><strong>Open in Default Email App</strong></a> &bull; <a href="' + gmailHref + '" target="_blank" rel="noopener"><strong>Open Directly in Gmail Web</strong></a></p>' +
+        '<pre class="request-preview" id="previewText"></pre>';
+      document.getElementById('previewText').textContent = 'To: developer.salmanmallah@gmail.com\nSubject: ' + payload.subject + '\n\n' + payload.body;
+    }
+
     function handleDeleteRequest(e) {
       e.preventDefault();
-      var email = document.getElementById('email').value.trim();
-      var scope = document.getElementById('scope').value;
-      var notes = document.getElementById('notes').value.trim() || 'None';
-      var subject = encodeURIComponent('Study Clock Account Deletion Request - ' + email);
-      var body = encodeURIComponent(
-        'Please delete my Study Clock (com.salman.studyclock) account and cloud data.\n\n' +
-        'Google Account Email: ' + email + '\n' +
-        'Requested Scope: ' + scope + '\n' +
-        'Notes: ' + notes + '\n'
-      );
-      var box = document.getElementById('statusBox');
-      box.style.display = 'block';
-      box.innerHTML = 'Opening your email client to send the verified request to <strong>developer.salmanmallah@gmail.com</strong>. If your email app did not open automatically, click <a href="mailto:developer.salmanmallah@gmail.com?subject=' + subject + '&body=' + body + '"><strong>here to send the email</strong></a>. Your request will be completed within 7 calendar days.';
-      window.location.href = 'mailto:developer.salmanmallah@gmail.com?subject=' + subject + '&body=' + body;
+      var payload = buildRequestPayload();
+      renderFallbackBox(payload, 'Your deletion request is ready below. If your email app does not open automatically, click "Open Directly in Gmail Web" or copy the text below and email it to developer.salmanmallah@gmail.com.');
+      window.location.href = 'mailto:developer.salmanmallah@gmail.com?subject=' + encodeURIComponent(payload.subject) + '&body=' + encodeURIComponent(payload.body);
+    }
+
+    function copyRequestDetails() {
+      var payload = buildRequestPayload();
+      var fullText = 'To: developer.salmanmallah@gmail.com\nSubject: ' + payload.subject + '\n\n' + payload.body;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(fullText);
+      }
+      renderFallbackBox(payload, 'Copied request text to clipboard! Paste and send it from your registered Google Account email to developer.salmanmallah@gmail.com (or click "Open Directly in Gmail Web").');
     }
   </script>
 </body>
