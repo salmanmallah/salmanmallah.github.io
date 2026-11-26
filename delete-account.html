@@ -72,8 +72,8 @@
 
         <label for="scope">Deletion Scope</label>
         <select id="scope">
-          <option value="Account + Profile + Study Sessions (Preserve Lifetime Premium entitlement if purchased)">Delete Account, Profile &amp; All Study Sessions (Retain Lifetime Premium receipt if purchased)</option>
-          <option value="Full Erasure (Delete Account, Profile, Study Sessions, AND permanently forfeit any Lifetime Premium entitlement)">Complete Erasure (Delete Account, Profile, Study Sessions &amp; forfeit Lifetime Premium entitlement)</option>
+          <option value="Full Account &amp; Cloud Data Deletion (Delete Firebase Auth account, Firestore profile, and all synced study sessions)">Full Account &amp; Cloud Data Deletion (Delete Firebase Auth account, Firestore profile, and all synced study sessions)</option>
+          <option value="Delete Synced Study Sessions Only (Keep Firebase Auth account and profile)">Delete Synced Study Sessions Only (Keep Firebase Auth account and profile)</option>
         </select>
 
         <label for="notes">Additional Note (Optional)</label>
@@ -91,9 +91,9 @@
     <div class="card">
       <h2>What Data Is Deleted vs. Retained &amp; Retention Schedule</h2>
       <ul>
-        <li><strong>Cloud Account &amp; Server Data (Deleted Immediately In-App / Within 7 Calendar Days via Email Request):</strong> Firebase Authentication account record (<code>UID</code>, email address, display name, photo URL), Cloud Firestore user profile document (<code>users/{uid}</code>), all synced study/work session records (<code>users/{uid}/study_sessions/*</code>), and synced custom subject tags.</li>
+        <li><strong>Cloud Account &amp; Server Data (Deleted Immediately In-App / Within 7 Calendar Days via Email Request):</strong> Firebase Authentication account record (<code>UID</code>, email address, display name), Cloud Firestore user profile document (<code>users/{uid}</code>), all synced study/work session records (<code>users/{uid}/study_sessions/*</code>), and synced custom subject tags.</li>
         <li><strong>Local On-Device Data (SQLite &amp; SharedPreferences):</strong> Deleted immediately when you use Option 1 (In-App Deletion), or when you uninstall Study Clock / clear app storage in Android Settings. (Because local SQLite files reside strictly on your physical device, an out-of-app email request deletes your server-side cloud account and cloud backups, while uninstalling the app removes local device files.)</li>
-        <li><strong>Retained for Purchase Restoration &amp; Fraud Prevention:</strong> If you purchased the one-time <strong>Lifetime Premium</strong> upgrade (<code>premium_lifetime</code>), the non-PII entitlement verification record (<code>users/{uid}/entitlements/premium</code> and SHA-256 purchase token hash <code>purchase_tokens/{tokenHash}</code>) is retained while the app is supported on Google Play solely so Google Play Billing can restore your purchase if you reinstall the app and prevent duplicate token replay fraud. You may request complete erasure of this entitlement record by selecting <em>"Complete Erasure"</em> above or emailing <a href="mailto:developer.salmanmallah@gmail.com">developer.salmanmallah@gmail.com</a>.</li>
+        <li><strong>Zero Server-Side Retention After Deletion:</strong> No personal account or study log data is retained on our servers after deletion completes.</li>
       </ul>
     </div>
   </div>
